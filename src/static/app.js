@@ -10,8 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const response = await fetch("/activities");
       const activities = await response.json();
 
-      // Clear loading message
-      activitiesList.innerHTML = "";
+      activitiesList.innerHTML = ""; // Clear the list
 
       // Populate activities list
       Object.entries(activities).forEach(([name, details]) => {
@@ -28,18 +27,30 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="participants-section">
             <strong>Participants:</strong>
             <ul class="participants-list">
-              ${details.participants.map(email => `<li>${email}</li>`).join('')}
+              ${details.participants
+                .map(
+                  (email) => `
+                    <li>
+                      ${email}
+                      <button class="delete-btn" data-activity="${name}" data-email="${email}">❌</button>
+                    </li>
+                  `
+                )
+                .join("")}
             </ul>
           </div>
         `;
 
         activitiesList.appendChild(activityCard);
+      });
 
-        // Add option to select dropdown
-        const option = document.createElement("option");
-        option.value = name;
-        option.textContent = name;
-        activitySelect.appendChild(option);
+      // Add event listeners for delete buttons
+      document.querySelectorAll(".delete-btn").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          const activity = event.target.dataset.activity;
+          const email = event.target.dataset.email;
+          unregisterParticipant(activity, email);
+        });
       });
     } catch (error) {
       activitiesList.innerHTML = "<p>Failed to load activities. Please try again later.</p>";
@@ -73,7 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const email = document.getElementById("email").value;
     const activity = document.getElementById("activity").value;
-    const messageDiv = document.getElementById("message");
 
     try {
       const response = await fetch(
@@ -89,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
-        fetchActivities();
+        fetchActivities(); // Refresh activities after signup
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
