@@ -24,7 +24,13 @@ document.addEventListener("DOMContentLoaded", () => {
           <h4>${name}</h4>
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
-          <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          <p><strong>Capacity:</strong> ${details.participants.length}/${details.max_participants}</p>
+          <div class="participants-section">
+            <strong>Participants:</strong>
+            <ul class="participants-list">
+              ${details.participants.map(email => `<li>${email}</li>`).join('')}
+            </ul>
+          </div>
         `;
 
         activitiesList.appendChild(activityCard);
@@ -47,6 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const email = document.getElementById("email").value;
     const activity = document.getElementById("activity").value;
+    const messageDiv = document.getElementById("message");
 
     try {
       const response = await fetch(
@@ -62,6 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        fetchActivities();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
